@@ -14,3 +14,6 @@ Add the behavior/HTC after every *box-sizing: border-box;* that you assign:
 *behavior: url(scripts/boxsizing.htc);`
 
 If you prefix the `behavior` property with a star, like seen above, it will only be seen by IE6 & IE7, not by IE8+ (it's a hack) which is better for the performance on those newer browsers.
+
+The URL to the HTC file must be relative to your HTML(!) document, not relative to your CSS.
+That's why I'd advise you to use absolute paths like in the example.
