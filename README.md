@@ -2,11 +2,9 @@
 
 This box-sizing polyfill is based on previous work done by Erik Arvidsson, which he published in 2002 on [WebFX](http://webfx.eae.net/dhtml/boxsizing/boxsizing.html).
 
-Since there were some edge/heavy usage cases where it broke I started pushing it further.
+Since there were some edge/heavy usage cases where it broke I started pushing it further. And since the original was not aware of IE8 I also added feature-detection for box-sizing, to do nothing when detected positive.
 
-During that I also borrowed dimension measuring techniques form Dean Edwards' [IE7.js](http://code.google.com/p/ie7-js/) script.
-
-Since the original was not aware of IE8 I added feature-detection for box-sizing, to do nothing when detected positive.
+During that I also borrowed dimension measuring techniques from Dean Edwards' [IE7.js](http://code.google.com/p/ie7-js/) script.
 
 # Usage
 
