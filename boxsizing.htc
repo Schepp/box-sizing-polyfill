@@ -24,10 +24,11 @@
 * @license   http://www.gnu.org/copyleft/lesser.html The GNU LESSER GENERAL PUBLIC LICENSE, Version 3.0
 * @link      http://github.com/Schepp/box-sizing-polyfill 
 *
+* PREFACE:
+*
 * This box-sizing polyfill is based on previous work done by Erik Arvidsson, 
 * which he published in 2002 on http://webfx.eae.net/dhtml/boxsizing/boxsizing.html.
-
-
+*
 * USAGE:
 * 	
 * Add the behavior/HTC after every `box-sizing: border-box;` that you assign:
@@ -37,6 +38,7 @@
 * 
 * If you prefix the `behavior` property with a star, like seen above, it will only be seen by 
 * IE6 & IE7, not by IE8+ (it's a hack) which is better for the performance on those newer browsers.
+*
 */
 <component lightWeight="true">
 <attach event="onpropertychange" onevent="checkPropertyChange()" />
@@ -123,20 +125,6 @@ function checkPropertyChange(){
  * http://code.google.com/p/ie7-js/
  *
  * Allows us to convert from relative to pixel-values.
- *
- * Citing Dean himself:
- * "MSIE6+ has special pixelLeft/Width/Height etc properties. 
- * They represent the current pixel value of the equivalent style setting. 
- * So, if you have style.width=8em then style.pixelWidth would return the 
- * pixel equivalent. MSIE also supports an override style called runtimeStyle. 
- * Setting properties on runtimeStyle overrides all other style properties.
- *
- * This trick works by setting style.left and then getting MSIE to convert 
- * it by calling style.pixelLeft. To stop the element moving around the screen 
- * when we do this, we set runtimeStyle.left with the current left value. 
- * After we’ve done the conversion we set everything back to the way it was.
- *
- * http://ajaxian.com/archives/computed-vs-cascaded-style
  */
 function getPixelValue(value){
 	var PIXEL = /^\d+(px)?$/i;
