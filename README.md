@@ -11,7 +11,7 @@ During that I also borrowed dimension measuring techniques from Dean Edwards' [I
 Add the behavior/HTC after every *box-sizing: border-box;* that you assign:
 
 `box-sizing: border-box;
-*behavior: url(scripts/boxsizing.htc);`
+*behavior: url(/scripts/boxsizing.htc);`
 
 If you prefix the `behavior` property with a star, like seen above, it will only be seen by IE6 & IE7, not by IE8+ (it's a hack) which is better for the performance on those newer browsers.
 
