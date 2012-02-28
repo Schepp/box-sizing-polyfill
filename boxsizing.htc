@@ -59,11 +59,8 @@ var doc = element.document;
 * triggers box-sizing calculations and updates width and height
 */
 function init(){
-	// check for IE8+
-	if(typeof(element.style.boxSizing) == "undefined"){
-		updateBorderBoxWidth();
-		updateBorderBoxHeight();
-	}
+	updateBorderBoxWidth();
+	updateBorderBoxHeight();
 }
 
 /*
@@ -71,11 +68,8 @@ function init(){
 * resets everything like it was before applying the behavior
 */
 function restore(){
-	// check for IE8+
-	if(typeof(element.style.boxSizing) == "undefined"){
-		element.runtimeStyle.width = "";
-		element.runtimeStyle.height = "";
-	}
+	element.runtimeStyle.width = "";
+	element.runtimeStyle.height = "";
 }
 
 /*
@@ -84,42 +78,40 @@ function restore(){
 * dimensions was changed and if yes recalculates width and height 
 */
 function checkPropertyChange(){
-	// check for IE8+
-	if(typeof(element.style.boxSizing) == "undefined"){
-		var pn = event.propertyName;
-		var undef;
-		if(pn == "style.boxSizing" && element.style.boxSizing == ""){
-			element.style.removeAttribute("boxSizing");
-			element.runtimeStyle.boxSizing = undef;
-		}
-		switch (pn){
-			case "style.width":
-			case "style.borderLeftWidth":
-			case "style.borderLeftStyle":
-			case "style.borderRightWidth":
-			case "style.borderRightStyle":
-			case "style.paddingLeft":
-			case "style.paddingRight":
-				updateBorderBoxWidth();
-			break;
-		
-			case "style.height":
-			case "style.borderTopWidth":
-			case "style.borderTopStyle":
-			case "style.borderBottomWidth":
-			case "style.borderBottomStyle":
-			case "style.paddingTop":
-			case "style.paddingBottom":
-				updateBorderBoxHeight();
-			break;
-		
-			case "className":
-			case "style.boxSizing":
-				updateBorderBoxWidth();
-				updateBorderBoxHeight();
-			break;
-		}
+	var pn = event.propertyName;
+	var undef;
+	if(pn == "style.boxSizing" && element.style.boxSizing == ""){
+		element.style.removeAttribute("boxSizing");
+		element.runtimeStyle.boxSizing = undef;
 	}
+	switch (pn){
+		case "style.width":
+		case "style.borderLeftWidth":
+		case "style.borderLeftStyle":
+		case "style.borderRightWidth":
+		case "style.borderRightStyle":
+		case "style.paddingLeft":
+		case "style.paddingRight":
+			updateBorderBoxWidth();
+		break;
+	
+		case "style.height":
+		case "style.borderTopWidth":
+		case "style.borderTopStyle":
+		case "style.borderBottomWidth":
+		case "style.borderBottomStyle":
+		case "style.paddingTop":
+		case "style.paddingBottom":
+			updateBorderBoxHeight();
+		break;
+	
+		case "className":
+		case "style.boxSizing":
+			updateBorderBoxWidth();
+			updateBorderBoxHeight();
+		break;
+	}
+
 }
 
 /* 
