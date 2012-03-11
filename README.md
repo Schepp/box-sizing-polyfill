@@ -17,3 +17,8 @@ If you prefix the `behavior` property with a star, like seen above, it will only
 
 The URL to the HTC file must be relative to your HTML(!) document, not relative to your CSS.
 That's why I'd advise you to use absolute paths like in the example.
+
+Please make sure to check your server configuration and update it to use the correct content-type if needed.
+You can do this in a .htaccess file:
+
+`AddType text/x-component .htc`
