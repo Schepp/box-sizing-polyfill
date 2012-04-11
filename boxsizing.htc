@@ -216,13 +216,38 @@ function getPixelHeight(object, value){
 	var PERCENT = /^[\d\.]+%$/i;
 	if (PERCENT.test(value)){
 		try{
-			parentHeight = getPixelHeight(object.parentElement,(object.parentElement.currentStyle.height != "auto" ? object.parentElement.currentStyle.height : "100%"));
-			value = (parseFloat(value) / 100) * parentHeight;
+			if(object.parentElement.currentStyle.height != "auto"){
+				switch(object.parentElement.nodeName){
+					default:
+						parentHeight = getPixelHeight(object.parentElement,object.parentElement.currentStyle.height);
+						if(parentHeight !== "auto"){
+							value = (parseFloat(value) / 100) * parentHeight;
+						}
+						else {
+							value = "auto";
+						}
+					break;
+					
+					case 'HTML':
+						parentHeight = element.document.documentElement.clientHeight;
+						if(parentHeight !== "auto"){
+							value = (parseFloat(value) / 100) * parentHeight;
+						}
+						else {
+							value = "auto";
+						}
+					break;
+				}
+				if(value !== "auto") value = parseInt(value);
+			}
+			else {
+				value = "auto";
+			}
 		}
 		catch(e){
-			value = (parseFloat(value) / 100) * element.document.documentElement.clientHeight;
+			value = "auto";
 		}
-		return parseInt(value);
+		return value;
 	}
 	
 	// For EM Values
@@ -354,11 +379,13 @@ function updateBorderBoxHeight() {
 	var csh = element.currentStyle.height;
 	if(csh != "auto"){
 		csh = getPixelHeight(element,csh);
-		if(getBoxSizing() == "border-box"){
-			setBorderBoxHeight(parseInt(csh));
-		}
-		else{
-			setContentBoxHeight(parseInt(csh));
+		if(csh !== "auto"){
+			if(getBoxSizing() == "border-box"){
+				setBorderBoxHeight(parseInt(csh));
+			}
+			else{
+				setContentBoxHeight(parseInt(csh));
+			}
 		}
 	}
 }
