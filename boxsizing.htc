@@ -1,5 +1,5 @@
 /**
-* CSS-JS-BOOSTER
+* box-sizing Polyfill
 * 
 * A polyfill for box-sizing: border-box for IE6 & IE7.
 * 
@@ -20,7 +20,7 @@
 * @category  JScript 
 * @package   box-sizing-polyfill
 * @author    Christian Schepp Schaefer <schaepp@gmx.de> <http://twitter.com/derSchepp>
-* @copyright 2010 Christian Schepp Schaefer
+* @copyright 2012 Christian Schepp Schaefer
 * @license   http://www.gnu.org/copyleft/lesser.html The GNU LESSER GENERAL PUBLIC LICENSE, Version 3.0
 * @link      http://github.com/Schepp/box-sizing-polyfill 
 *
@@ -46,13 +46,37 @@
 <component lightWeight="true">
 <attach event="onpropertychange" onevent="checkPropertyChange()" />
 <attach event="ondetach" onevent="restore()" />
-<attach event="onresize" for="window" onevent="restore();init()" />
+<attach event="onresize" for="window" onevent="update()" />
 <script type="text/javascript">
 //<![CDATA[
 
 var viewportwidth = (typeof window.innerWidth != 'undefined' ? window.innerWidth : element.document.documentElement.clientWidth);
 // Shortcut for the document object
 var doc = element.document;
+var resizetimeout = null;
+
+/*
+* update gets called during resize events, then waits until there are no further resize events, and finally triggers a recalculation
+*/
+function update(){
+	if(resizetimeout !== null){
+		window.clearTimeout(resizetimeout);
+	}
+	resizetimeout = window.setTimeout(function(){
+		restore();
+		init();
+		resizetimeout = null;
+	},100);
+}
+
+/*
+* restore gets called when the behavior is being detached (see event binding at the top),
+* resets everything like it was before applying the behavior
+*/
+function restore(){
+	element.runtimeStyle.removeAttribute("width");
+	element.runtimeStyle.removeAttribute("height");
+}
 
 /*
 * init gets called once at the start and then never again, 
@@ -64,25 +88,15 @@ function init(){
 }
 
 /*
-* restore gets called when the behavior is being detached (see event binding at the top),
-* resets everything like it was before applying the behavior
-*/
-function restore(){
-	element.runtimeStyle.width = "";
-	element.runtimeStyle.height = "";
-}
-
-/*
 * checkPropertyChange gets called as soon as an element property changes 
 * (see event binding at the top), it then checks if any property influencing its 
 * dimensions was changed and if yes recalculates width and height 
 */
 function checkPropertyChange(){
 	var pn = event.propertyName;
-	var undef;
-	if(pn == "style.boxSizing" && element.style.boxSizing == ""){
+	if(pn === "style.boxSizing" && element.style.boxSizing === ""){
 		element.style.removeAttribute("boxSizing");
-		element.runtimeStyle.boxSizing = undef;
+		element.runtimeStyle.removeAttribute("boxSizing");
 	}
 	switch (pn){
 		case "style.width":
@@ -226,7 +240,7 @@ function getBoxSizing(){
  * Get the default document box sizing (check for quirks mode)
  */
 function getDocumentBoxSizing(){
-	if(doc.compatMode == null || doc.compatMode == "BackCompat"){
+	if(doc.compatMode === null || doc.compatMode === "BackCompat"){
 		return "border-box";
 	}
 	return "content-box"
