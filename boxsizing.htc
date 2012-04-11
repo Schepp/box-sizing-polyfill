@@ -36,8 +36,8 @@
 * box-sizing: border-box;
 * *behavior: url(/scripts/boxsizing.htc);`
 * 
-* If you prefix the `behavior` property with a star, like seen above, it will only be seen by 
-* IE6 & IE7, not by IE8+ (it's a hack) which is better for the performance on those newer browsers.
+* Prefix the `behavior` property with a star, like seen above, so it will only be seen by 
+* IE6 & IE7, not by IE8+ who already implement box-sizing.
 *
 * The URL to the HTC file must be relative to your HTML(!) document, not relative to your CSS.
 * That's why I'd advise you to use absolute paths like in the example.
@@ -51,9 +51,30 @@
 //<![CDATA[
 
 var viewportwidth = (typeof window.innerWidth != 'undefined' ? window.innerWidth : element.document.documentElement.clientWidth);
+
 // Shortcut for the document object
 var doc = element.document;
+
+// Buffer for multiple resize events
 var resizetimeout = null;
+
+// Don't apply box-sizing to certain elements
+var apply = false;
+switch(element.nodeName){
+	case '#comment':
+	case 'HTML':
+	case 'HEAD':
+	case 'TITLE':
+	case 'SCRIPT':
+	case 'STYLE':
+	case 'LINK':
+	case 'META':
+	break;
+			
+	default:
+		apply = true;
+	break;
+}
 
 /*
 * update gets called during resize events, then waits until there are no further resize events, and finally triggers a recalculation
@@ -74,8 +95,10 @@ function update(){
 * resets everything like it was before applying the behavior
 */
 function restore(){
-	element.runtimeStyle.removeAttribute("width");
-	element.runtimeStyle.removeAttribute("height");
+	if(apply){
+		element.runtimeStyle.removeAttribute("width");
+		element.runtimeStyle.removeAttribute("height");
+	}
 }
 
 /*
@@ -83,8 +106,10 @@ function restore(){
 * triggers box-sizing calculations and updates width and height
 */
 function init(){
-	updateBorderBoxWidth();
-	updateBorderBoxHeight();
+	if(apply){
+		updateBorderBoxWidth();
+		updateBorderBoxHeight();
+	}
 }
 
 /*
@@ -93,39 +118,42 @@ function init(){
 * dimensions was changed and if yes recalculates width and height 
 */
 function checkPropertyChange(){
-	var pn = event.propertyName;
-	if(pn === "style.boxSizing" && element.style.boxSizing === ""){
-		element.style.removeAttribute("boxSizing");
-		element.runtimeStyle.removeAttribute("boxSizing");
+	if(apply){
+		var pn = event.propertyName;
+		if(pn === "style.boxSizing" && element.style.boxSizing === ""){
+			element.style.removeAttribute("boxSizing");
+			element.runtimeStyle.removeAttribute("boxSizing");
+			element.runtimeStyle.removeAttribute("width");
+			element.runtimeStyle.removeAttribute("height");
+		}
+		switch (pn){
+			case "style.width":
+			case "style.borderLeftWidth":
+			case "style.borderLeftStyle":
+			case "style.borderRightWidth":
+			case "style.borderRightStyle":
+			case "style.paddingLeft":
+			case "style.paddingRight":
+				updateBorderBoxWidth();
+			break;
+		
+			case "style.height":
+			case "style.borderTopWidth":
+			case "style.borderTopStyle":
+			case "style.borderBottomWidth":
+			case "style.borderBottomStyle":
+			case "style.paddingTop":
+			case "style.paddingBottom":
+				updateBorderBoxHeight();
+			break;
+		
+			case "className":
+			case "style.boxSizing":
+				updateBorderBoxWidth();
+				updateBorderBoxHeight();
+			break;
+		}
 	}
-	switch (pn){
-		case "style.width":
-		case "style.borderLeftWidth":
-		case "style.borderLeftStyle":
-		case "style.borderRightWidth":
-		case "style.borderRightStyle":
-		case "style.paddingLeft":
-		case "style.paddingRight":
-			updateBorderBoxWidth();
-		break;
-	
-		case "style.height":
-		case "style.borderTopWidth":
-		case "style.borderTopStyle":
-		case "style.borderBottomWidth":
-		case "style.borderBottomStyle":
-		case "style.paddingTop":
-		case "style.paddingBottom":
-			updateBorderBoxHeight();
-		break;
-	
-		case "className":
-		case "style.boxSizing":
-			updateBorderBoxWidth();
-			updateBorderBoxHeight();
-		break;
-	}
-
 }
 
 /* 
@@ -163,6 +191,36 @@ function getPixelWidth(object, value){
 		}
 		catch(e){
 			value = (parseFloat(value) / 100) * element.document.documentElement.clientWidth;
+		}
+		return parseInt(value);
+	}
+	
+	// For EM Values
+	var style = object.style.left;
+	var runtimeStyle = object.runtimeStyle.left;
+	object.runtimeStyle.left = object.currentStyle.left;
+	object.style.left = value || 0;
+	value = parseInt(object.style.pixelLeft);
+	object.style.left = style;
+	object.runtimeStyle.left = runtimeStyle;
+	
+	return value;
+}
+
+function getPixelHeight(object, value){
+	// For Pixel Values
+	var PIXEL = /^\d+(px)?$/i;
+	if (PIXEL.test(value)) return parseInt(value);
+	
+	// For Percentage Values
+	var PERCENT = /^[\d\.]+%$/i;
+	if (PERCENT.test(value)){
+		try{
+			parentHeight = getPixelHeight(object.parentElement,(object.parentElement.currentStyle.height != "auto" ? object.parentElement.currentStyle.height : "100%"));
+			value = (parseFloat(value) / 100) * parentHeight;
+		}
+		catch(e){
+			value = (parseFloat(value) / 100) * element.document.documentElement.clientHeight;
 		}
 		return parseInt(value);
 	}
@@ -295,7 +353,7 @@ function updateBorderBoxHeight() {
 	}
 	var csh = element.currentStyle.height;
 	if(csh != "auto"){
-		csh = getPixelValue(csh);
+		csh = getPixelHeight(element,csh);
 		if(getBoxSizing() == "border-box"){
 			setBorderBoxHeight(parseInt(csh));
 		}
