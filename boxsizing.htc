@@ -190,11 +190,17 @@ function getPixelWidth(object, value){
 	var PERCENT = /^[\d\.]+%$/i;
 	if (PERCENT.test(value)){
 		try{
-			parentWidth = getPixelWidth(object.parentElement,(object.parentElement.currentStyle.width != "auto" ? object.parentElement.currentStyle.width : "100%"));
-			value = (parseFloat(value) / 100) * parentWidth;
+			var parentPaddingLeft = getPixelWidth(object.parentElement,object.parentElement.currentStyle.paddingLeft);
+			var parentPaddingRight = getPixelWidth(object.parentElement,object.parentElement.currentStyle.paddingRight);
+			var parentBorderLeft = getPixelWidth(object.parentElement,object.parentElement.currentStyle.borderLeft);
+			var parentBorderRight = getPixelWidth(object.parentElement,object.parentElement.currentStyle.borderRight);
+			
+			//var parentWidth = getPixelWidth(object.parentElement,(object.parentElement.currentStyle.width != "auto" ? object.parentElement.currentStyle.width : "100%"));
+			var parentWidth = object.parentElement.offsetWidth - parentPaddingLeft - parentPaddingRight - parentBorderLeft - parentBorderRight;
+			var value = (parseFloat(value) / 100) * parentWidth;
 		}
 		catch(e){
-			value = (parseFloat(value) / 100) * element.document.documentElement.clientWidth;
+			var value = (parseFloat(value) / 100) * element.document.documentElement.clientWidth;
 		}
 		return parseInt(value);
 	}
@@ -223,8 +229,15 @@ function getPixelHeight(object, value){
 			if(object.parentElement.currentStyle.height != "auto"){
 				switch(object.parentElement.nodeName){
 					default:
-						parentHeight = getPixelHeight(object.parentElement,object.parentElement.currentStyle.height);
-						if(parentHeight !== "auto"){
+						if(object.parentElement.currentStyle.height !== "auto"){
+							var parentPaddingTop = getPixelWidth(object.parentElement,object.parentElement.currentStyle.paddingTop);
+							var parentPaddingBottom = getPixelWidth(object.parentElement,object.parentElement.currentStyle.paddingBottom);
+							var parentBorderTop = getPixelWidth(object.parentElement,object.parentElement.currentStyle.borderTop);
+							var parentBorderBottom = getPixelWidth(object.parentElement,object.parentElement.currentStyle.borderBottom);
+							
+							var parentHeight = object.parentElement.offsetHeight - parentPaddingTop - parentPaddingBottom - parentBorderTop - parentBorderBottom;
+							//var parentHeight = getPixelHeight(object.parentElement,object.parentElement.currentStyle.height);
+
 							value = (parseFloat(value) / 100) * parentHeight;
 						}
 						else {
