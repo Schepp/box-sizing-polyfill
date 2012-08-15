@@ -96,8 +96,11 @@ function update(){
 */
 function restore(){
 	if(apply){
-		element.runtimeStyle.removeAttribute("width");
-		element.runtimeStyle.removeAttribute("height");
+		try{
+			element.runtimeStyle.removeAttribute("width");
+			element.runtimeStyle.removeAttribute("height");
+		}
+		catch(e){}
 	}
 }
 
