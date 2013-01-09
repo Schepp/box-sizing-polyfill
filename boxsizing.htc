@@ -79,13 +79,13 @@ switch(element.nodeName){
 /*
 * update gets called during resize events, then waits until there are no further resize events, and finally triggers a recalculation
 */
-function update(){
+function update(obj){
 	if(resizetimeout !== null){
 		window.clearTimeout(resizetimeout);
 	}
 	resizetimeout = window.setTimeout(function(){
-		restore();
-		init();
+	    restore(obj);
+	    init(obj);
 		resizetimeout = null;
 	},100);
 }
@@ -108,10 +108,10 @@ function restore(){
 * init gets called once at the start and then never again, 
 * triggers box-sizing calculations and updates width and height
 */
-function init(){
+function init(obj){
 	if(apply){
-		updateBorderBoxWidth();
-		updateBorderBoxHeight();
+	    updateBorderBoxWidth(obj);
+	    updateBorderBoxHeight(obj);
 	}
 }
 
@@ -287,31 +287,31 @@ function getPixelHeight(object, value){
  * getBorderWidth & friends
  * Border width getters
  */
-function getBorderWidth(sSide){
-	if(element.currentStyle["border" + sSide + "Style"] == "none"){
+function getBorderWidth(obj,sSide){
+	if(obj.currentStyle["border" + sSide + "Style"] == "none"){
 		return 0;
 	}
-	var n = getPixelValue(element.currentStyle["border" + sSide + "Width"]);
+	var n = getPixelValue(obj.currentStyle["border" + sSide + "Width"]);
 	return n || 0;
 }
-function getBorderLeftWidth() { return getBorderWidth("Left"); }
-function getBorderRightWidth() { return getBorderWidth("Right"); }
-function getBorderTopWidth() { return getBorderWidth("Top"); }
-function getBorderBottomWidth() { return getBorderWidth("Bottom"); }
+function getBorderLeftWidth(obj) { return getBorderWidth(obj, "Left"); }
+function getBorderRightWidth(obj) { return getBorderWidth(obj, "Right"); }
+function getBorderTopWidth(obj) { return getBorderWidth(obj, "Top"); }
+function getBorderBottomWidth(obj) { return getBorderWidth(obj, "Bottom"); }
 
 
 /*
  * getPadding & friends
  * Padding width getters
  */
-function getPadding(sSide) {
-	var n = getPixelValue(element.currentStyle["padding" + sSide]);
+function getPadding(obj,sSide) {
+    var n = getPixelValue(obj.currentStyle["padding" + sSide]);
 	return n || 0;
 }
-function getPaddingLeft() { return getPadding("Left"); }
-function getPaddingRight() { return getPadding("Right"); }
-function getPaddingTop() { return getPadding("Top"); }
-function getPaddingBottom() { return getPadding("Bottom"); }
+function getPaddingLeft(obj) { return getPadding(obj,"Left"); }
+function getPaddingRight(obj) { return getPadding(obj,"Right"); }
+function getPaddingTop(obj) { return getPadding(obj,"Top"); }
+function getPaddingBottom(obj) { return getPadding(obj,"Bottom"); }
 
 
 
@@ -319,8 +319,11 @@ function getPaddingBottom() { return getPadding("Bottom"); }
  * getBoxSizing
  * Get the box-sizing value for the current element
  */
-function getBoxSizing(){
-	var s = element.style;
+function getBoxSizing(obj) {
+    if (obj) {
+        return "border-box";
+    } 
+    var  s = element.style;
 	var cs = element.currentStyle
 	if(typeof s.boxSizing != "undefined" && s.boxSizing != ""){
 		return s.boxSizing;
@@ -354,53 +357,53 @@ function getDocumentBoxSizing(){
  * setBorderBoxWidth & friends
  * Width and height setters
  */
-function setBorderBoxWidth(n){
-	element.runtimeStyle.width = Math.max(0, n - getBorderLeftWidth() -
-		getPaddingLeft() - getPaddingRight() - getBorderRightWidth()) + "px";
+function setBorderBoxWidth(obj,n) {
+	obj.runtimeStyle.width = Math.max(0, n - getBorderLeftWidth(obj) -
+		getPaddingLeft(obj) - getPaddingRight(obj) - getBorderRightWidth(obj)) + "px";
 }
-function setBorderBoxMinWidth(n){
-	element.runtimeStyle.minWidth = Math.max(0, n - getBorderLeftWidth() -
-		getPaddingLeft() - getPaddingRight() - getBorderRightWidth()) + "px";
+function setBorderBoxMinWidth(obj,n){
+	obj.runtimeStyle.minWidth = Math.max(0, n - getBorderLeftWidth(obj) -
+		getPaddingLeft(obj) - getPaddingRight(obj) - getBorderRightWidth(obj)) + "px";
 }
-function setBorderBoxMaxWidth(n){
-	element.runtimeStyle.maxWidth = Math.max(0, n - getBorderLeftWidth() -
-		getPaddingLeft() - getPaddingRight() - getBorderRightWidth()) + "px";
+function setBorderBoxMaxWidth(obj,n){
+	obj.runtimeStyle.maxWidth = Math.max(0, n - getBorderLeftWidth(obj) -
+		getPaddingLeft(obj) - getPaddingRight(obj) - getBorderRightWidth(obj)) + "px";
 }
-function setBorderBoxHeight(n){
-	element.runtimeStyle.height = Math.max(0, n - getBorderTopWidth() -
-		getPaddingTop() - getPaddingBottom() - getBorderBottomWidth()) + "px";
+function setBorderBoxHeight(obj,n) {
+	obj.runtimeStyle.height = Math.max(0, n - getBorderTopWidth(obj) -
+		getPaddingTop(obj) - getPaddingBottom(obj) - getBorderBottomWidth(obj)) + "px";
 }
-function setBorderBoxMinHeight(n){
-	element.runtimeStyle.minHeight = Math.max(0, n - getBorderTopWidth() -
-		getPaddingTop() - getPaddingBottom() - getBorderBottomWidth()) + "px";
+function setBorderBoxMinHeight(obj,n){
+	obj.runtimeStyle.minHeight = Math.max(0, n - getBorderTopWidth(obj) -
+		getPaddingTop(obj) - getPaddingBottom(obj) - getBorderBottomWidth(obj)) + "px";
 }
-function setBorderBoxMaxHeight(n){
-	element.runtimeStyle.maxHeight = Math.max(0, n - getBorderTopWidth() -
-		getPaddingTop() - getPaddingBottom() - getBorderBottomWidth()) + "px";
+function setBorderBoxMaxHeight(obj,n){
+	obj.runtimeStyle.maxHeight = Math.max(0, n - getBorderTopWidth(obj) -
+		getPaddingTop(obj) - getPaddingBottom(obj) - getBorderBottomWidth(obj)) + "px";
 }
-function setContentBoxWidth(n){
-	element.runtimeStyle.width = Math.max(0, n + getBorderLeftWidth() +
-		getPaddingLeft() + getPaddingRight() + getBorderRightWidth()) + "px";
+function setContentBoxWidth(obj,n) {
+	obj.runtimeStyle.width = Math.max(0, n + getBorderLeftWidth(obj) +
+		getPaddingLeft(obj) + getPaddingRight(obj) + getBorderRightWidth(obj)) + "px";
 }
-function setContentBoxMinWidth(n){
-	element.runtimeStyle.minWidth = Math.max(0, n + getBorderLeftWidth() +
-		getPaddingLeft() + getPaddingRight() + getBorderRightWidth()) + "px";
+function setContentBoxMinWidth(obj,n){
+	obj.runtimeStyle.minWidth = Math.max(0, n + getBorderLeftWidth(obj) +
+		getPaddingLeft(obj) + getPaddingRight(obj) + getBorderRightWidth(obj)) + "px";
 }
-function setContentBoxMaxWidth(n){
-	element.runtimeStyle.maxWidth = Math.max(0, n + getBorderLeftWidth() +
-		getPaddingLeft() + getPaddingRight() + getBorderRightWidth()) + "px";
+function setContentBoxMaxWidth(obj,n){
+	obj.runtimeStyle.maxWidth = Math.max(0, n + getBorderLeftWidth(obj) +
+		getPaddingLeft(obj) + getPaddingRight(obj) + getBorderRightWidth(obj)) + "px";
 }
-function setContentBoxHeight(n){
-	element.runtimeStyle.height = Math.max(0, n + getBorderTopWidth() +
-		getPaddingTop() + getPaddingBottom() + getBorderBottomWidth()) + "px";
+function setContentBoxHeight(obj,n){
+	obj.runtimeStyle.height = Math.max(0, n + getBorderTopWidth(obj) +
+		getPaddingTop(obj) + getPaddingBottom(obj) + getBorderBottomWidth(obj)) + "px";
 }
-function setContentBoxMinHeight(n){
-	element.runtimeStyle.minHeight = Math.max(0, n + getBorderTopWidth() +
-		getPaddingTop() + getPaddingBottom() + getBorderBottomWidth()) + "px";
+function setContentBoxMinHeight(obj,n){
+	obj.runtimeStyle.minHeight = Math.max(0, n + getBorderTopWidth(obj) +
+		getPaddingTop(obj) + getPaddingBottom(obj) + getBorderBottomWidth(obj)) + "px";
 }
-function setContentBoxMaxHeight(n){
-	element.runtimeStyle.maxHeight = Math.max(0, n + getBorderTopWidth() +
-		getPaddingTop() + getPaddingBottom() + getBorderBottomWidth()) + "px";
+function setContentBoxMaxHeight(obj,n){
+	obj.runtimeStyle.maxHeight = Math.max(0, n + getBorderTopWidth(obj) +
+		getPaddingTop(obj) + getPaddingBottom(obj) + getBorderBottomWidth(obj)) + "px";
 }
 
 
@@ -408,94 +411,146 @@ function setContentBoxMaxHeight(n){
  * updateBorderBoxWidth & updateBorderBoxHeight
  * 
  */
-function updateBorderBoxWidth() {
-	if(getDocumentBoxSizing() == getBoxSizing()){
+function updateBorderBoxWidth(obj) {
+    if (!obj) {
+        obj = element;
+    }
+    if (getDocumentBoxSizing() == getBoxSizing(obj)) {
 		return;
 	}
 	
-	var csw = element.currentStyle.width;
+	var csw = obj.currentStyle.width;
 	if(csw != "auto"){
-		csw = getPixelWidth(element,csw);
-		if(getBoxSizing() == "border-box"){
-			setBorderBoxWidth(parseInt(csw));
+		csw = getPixelWidth(obj,csw);
+		if (getBoxSizing(obj) == "border-box") {
+		    /*修复与jq的冲突*/
+		    var sw = obj.style.width;
+             if (obj.currentStyle.width == "100%" || obj.fillparentwidth) {
+		            //获取父宽度
+                    csw = getPixelWidth(obj, "100%");
+                    attachOnResizeOfParent(obj);
+		            obj.fillparentwidth = true;
+		        }
+		    else if (sw != obj.currentStyle.width&&parseInt(sw)) {
+		            csw = parseInt(sw); //修复与jq的冲突
+		    }
+		    /*end*/
+			setBorderBoxWidth(obj,parseInt(csw));
 		}
 		else{
-			setContentBoxWidth(parseInt(csw));
+			setContentBoxWidth(obj,parseInt(csw));
 		}
 	}
 
-	csw = element.currentStyle.minWidth;
+	csw = obj.currentStyle.minWidth;
 	if(csw != "none"){
-		csw = getPixelWidth(element,csw);
-		if(getBoxSizing() == "border-box"){
-			setBorderBoxMinWidth(parseInt(csw));
+		csw = getPixelWidth(obj,csw);
+		if (getBoxSizing(obj) == "border-box") {
+			setBorderBoxMinWidth(obj,parseInt(csw));
 		}
 		else{
-			setContentBoxMinWidth(parseInt(csw));
+			setContentBoxMinWidth(obj,parseInt(csw));
 		}
 	}
 
-	csw = element.currentStyle.maxWidth;
+	csw = obj.currentStyle.maxWidth;
 	if(csw != "none"){
-		csw = getPixelWidth(element,csw);
-		if(getBoxSizing() == "border-box"){
-			setBorderBoxMaxWidth(parseInt(csw));
+		csw = getPixelWidth(obj,csw);
+		if (getBoxSizing(obj) == "border-box") {
+			setBorderBoxMaxWidth(obj,parseInt(csw));
 		}
 		else{
-			setContentBoxMaxWidth(parseInt(csw));
+			setContentBoxMaxWidth(obj,parseInt(csw));
 		}
 	}
 }
 
-function updateBorderBoxHeight() {
-	if(getDocumentBoxSizing() == getBoxSizing()){
+function updateBorderBoxHeight(obj) {
+    if (!obj) {
+        obj = element;
+    }
+    if (getDocumentBoxSizing() == getBoxSizing(obj)) {
 		return;
 	}
-	
-	var csh = element.currentStyle.height;
+
+var csh = obj.currentStyle.height;
 	if(csh != "auto"){
-		csh = getPixelHeight(element,csh);
+		csh = getPixelHeight(obj,csh);
 		if(csh !== "auto"){
-			if(getBoxSizing() == "border-box"){
-				setBorderBoxHeight(parseInt(csh));
+		    if (getBoxSizing(obj) == "border-box") {
+		             /*修复与jq的冲突*/
+                     var sh = obj.style.height;
+                     if (obj.currentStyle.height == "100%" || obj.fillparentheight) {
+                                //获取父高度
+                                csh = getPixelHeight(obj,"100%");
+                                obj.fillparentheight = true;
+                                attachOnResizeOfParent(obj);
+                     }
+                     else if (sh != obj.currentStyle.height && parseInt(sh)) {
+                                csh = parseInt(sh); //修复与jq的冲突
+                     }
+                        /*end*/
+		              setBorderBoxHeight(obj,parseInt(csh));
 			}
 			else{
-				setContentBoxHeight(parseInt(csh));
+				setContentBoxHeight(obj,parseInt(csh));
 			}
 		}
 	}
 
-	csh = element.currentStyle.minHeight;
+	csh = obj.currentStyle.minHeight;
 	if(csh != "none"){
-		csh = getPixelHeight(element,csh);
+		csh = getPixelHeight(obj,csh);
 		if(csh !== "none"){
-			if(getBoxSizing() == "border-box"){
-				setBorderBoxMinHeight(parseInt(csh));
+		    if (getBoxSizing(obj) == "border-box") {
+				setBorderBoxMinHeight(obj,parseInt(csh));
 			}
 			else{
-				setContentBoxMinHeight(parseInt(csh));
+				setContentBoxMinHeight(obj,parseInt(csh));
 			}
 		}
 	}
 
-	csh = element.currentStyle.maxHeight;
+	csh = obj.currentStyle.maxHeight;
 	if(csh != "none"){
-		csh = getPixelHeight(element,csh);
+		csh = getPixelHeight(obj,csh);
 		if(csh !== "none"){
-			if(getBoxSizing() == "border-box"){
-				setBorderBoxMaxHeight(parseInt(csh));
+		    if (getBoxSizing(obj) == "border-box") {
+				setBorderBoxMaxHeight(obj,parseInt(csh));
 			}
 			else{
-				setContentBoxMaxHeight(parseInt(csh));
+				setContentBoxMaxHeight(obj,parseInt(csh));
 			}
 		}
 	}
 }
-
+function attachOnResizeOfParent(obj) {
+    var oldFunc = obj.parentElement.onresize;
+    var parentObj = obj.parentElement;
+    if (obj.parentElement.tagName == "FORM" || obj.parentElement.tagName == "DOCUMENT") {
+        parentObj = window;
+    }
+    var updateObjsParamName="p-border-box-update" + (parentObj.id?parentObj.id:"window");
+    if (window[updateObjsParamName]) {
+        window[updateObjsParamName].push(obj);
+    } else {
+        window[updateObjsParamName] = [obj];
+    }
+    if (parentObj.onresize&&parentObj.onresize.toString().indexOf("oldFunc && oldFunc()") > 0) {
+        return;
+    }
+    parentObj.onresize = function () {
+        oldFunc && oldFunc();
+        if (window[updateObjsParamName] && window[updateObjsParamName].push) {
+            for (var ix in window[updateObjsParamName]) {
+                update(window[updateObjsParamName][ix]);
+            }
+        }
+    }
+}
 
 // Run the calculations
 init();
-
 //]]>
 </script>
 </component>
