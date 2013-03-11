@@ -79,7 +79,7 @@ switch(element.nodeName){
 /*
 * update gets called during resize events, then waits until there are no further resize events, and finally triggers a recalculation
 */
-function update(){
+function update(){	
 	if(resizetimeout !== null){
 		window.clearTimeout(resizetimeout);
 	}
@@ -96,9 +96,10 @@ function update(){
 */
 function restore(){
 	if(apply){
-		try{
+		try{						
 			element.runtimeStyle.removeAttribute("width");
 			element.runtimeStyle.removeAttribute("height");
+			element.parentNode.detachEvent ('onresize', update);
 		}
 		catch(e){}
 	}
@@ -112,6 +113,7 @@ function init(){
 	if(apply){
 		updateBorderBoxWidth();
 		updateBorderBoxHeight();
+		element.parentNode.attachEvent ('onresize', update);
 	}
 }
 
