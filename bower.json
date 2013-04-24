@@ -1,0 +1,8 @@
+{
+  "name": "box-sizing-polyfill",
+  "version": "1.0.0",
+  "main": "boxsizing.htc",
+  "ignore": [
+    "README.md"
+  ]
+}
