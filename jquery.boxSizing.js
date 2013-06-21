@@ -35,7 +35,6 @@
 			};
 			
 		size();
-		$(window).resize(size);
 		
 	};
 	
