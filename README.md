@@ -22,3 +22,5 @@ Please make sure to check your server configuration and update it to use the cor
 You can do this in a .htaccess file:
 
 `AddType text/x-component .htc`
+
+It is advised to apply the polyfill selectively, since applying it to every single element can cause resizing or shrinking of elements.  See https://github.com/Schepp/box-sizing-polyfill/issues/12
