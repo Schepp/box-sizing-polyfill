@@ -198,8 +198,8 @@ function getPixelWidth(object, value){
 		try{
 			var parentPaddingLeft = getPixelWidth(object.parentElement,object.parentElement.currentStyle.paddingLeft);
 			var parentPaddingRight = getPixelWidth(object.parentElement,object.parentElement.currentStyle.paddingRight);
-			var parentBorderLeft = getPixelWidth(object.parentElement,object.parentElement.currentStyle.borderLeft);
-			var parentBorderRight = getPixelWidth(object.parentElement,object.parentElement.currentStyle.borderRight);
+			var parentBorderLeft = getPixelWidth(object.parentElement,object.parentElement.currentStyle.borderLeftWidth);
+			var parentBorderRight = getPixelWidth(object.parentElement,object.parentElement.currentStyle.borderRightWidth);
 			
 			//var parentWidth = getPixelWidth(object.parentElement,(object.parentElement.currentStyle.width != "auto" ? object.parentElement.currentStyle.width : "100%"));
 			var parentWidth = object.parentElement.offsetWidth - parentPaddingLeft - parentPaddingRight - parentBorderLeft - parentBorderRight;
@@ -238,8 +238,8 @@ function getPixelHeight(object, value){
 						if(object.parentElement.currentStyle.height !== "auto"){
 							var parentPaddingTop = getPixelWidth(object.parentElement,object.parentElement.currentStyle.paddingTop);
 							var parentPaddingBottom = getPixelWidth(object.parentElement,object.parentElement.currentStyle.paddingBottom);
-							var parentBorderTop = getPixelWidth(object.parentElement,object.parentElement.currentStyle.borderTop);
-							var parentBorderBottom = getPixelWidth(object.parentElement,object.parentElement.currentStyle.borderBottom);
+							var parentBorderTop = getPixelWidth(object.parentElement,object.parentElement.currentStyle.borderTopWidth);
+							var parentBorderBottom = getPixelWidth(object.parentElement,object.parentElement.currentStyle.borderBottomWidth);
 							
 							var parentHeight = object.parentElement.offsetHeight - parentPaddingTop - parentPaddingBottom - parentBorderTop - parentBorderBottom;
 							//var parentHeight = getPixelHeight(object.parentElement,object.parentElement.currentStyle.height);
