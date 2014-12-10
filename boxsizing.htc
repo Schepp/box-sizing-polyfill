@@ -42,6 +42,12 @@
 * The URL to the HTC file must be relative to your HTML(!) document, not relative to your CSS.
 * That's why I'd advise you to use absolute paths like in the example.
 *
+* CHANGE LOG:
+*  2014-12-08: smithwib: Rewrote a good portion of how borders and padding was being
+*    calculated to do a better job of trapping errors and measuring consistently
+*  2014-12-09: smithwib: Ran into problems with IE7 and border:thick, had to go with a 
+*    direct replacement rather than a calculated value
+*
 */
 <component lightWeight="true">
 <attach event="onpropertychange" onevent="checkPropertyChange()" />
@@ -172,25 +178,35 @@ function checkPropertyChange(){
  * http://code.google.com/p/ie7-js/
  *
  * Allows us to convert from relative to pixel-values.
+ * Don't use with percentages -- they need more parent info
  */
 function getPixelValue(value){
-	var PIXEL = /^\d+(px)?$/i;
-	if (PIXEL.test(value)) return parseInt(value);
+
+	// If word widths, swap in IE6/IE7 constants
+	// because these won't evaluate properly
+	// in below method
+	switch (value.toLowerCase()) {
+		case "thick": return 6;
+		case "medium": return 4;
+		case "thin": return 2;
+	}
+
+	// Otherwise, let browser convert
 	var style = element.style.left;
 	var runtimeStyle = element.runtimeStyle.left;
 	element.runtimeStyle.left = element.currentStyle.left;
-	element.style.left = value || 0;
-	value = parseInt(element.style.pixelLeft);
+  try {
+		element.style.left = value;
+		value = parseInt(element.style.pixelLeft);
+  } catch(e) {
+  	value = 0;
+  }
 	element.style.left = style;
 	element.runtimeStyle.left = runtimeStyle;
-	
 	return value;
 }
 
 function getPixelWidth(object, value){
-	// For Pixel Values
-	var PIXEL = /^\d+(px)?$/i;
-	if (PIXEL.test(value)) return parseInt(value);
 	
 	// For Percentage Values
 	var PERCENT = /^[\d\.]+%$/i;
@@ -198,10 +214,8 @@ function getPixelWidth(object, value){
 		try{
 			var parentPaddingLeft = getPixelWidth(object.parentElement,object.parentElement.currentStyle.paddingLeft);
 			var parentPaddingRight = getPixelWidth(object.parentElement,object.parentElement.currentStyle.paddingRight);
-			var parentBorderLeft = getPixelWidth(object.parentElement,object.parentElement.currentStyle.borderLeftWidth);
-			var parentBorderRight = getPixelWidth(object.parentElement,object.parentElement.currentStyle.borderRightWidth);
-			
-			//var parentWidth = getPixelWidth(object.parentElement,(object.parentElement.currentStyle.width != "auto" ? object.parentElement.currentStyle.width : "100%"));
+			var parentBorderLeft = getBorderWidth(object.parentElement,"Left");
+			var parentBorderRight = getBorderWidth(object.parentElement,"Right");
 			var parentWidth = object.parentElement.offsetWidth - parentPaddingLeft - parentPaddingRight - parentBorderLeft - parentBorderRight;
 			var value = (parseFloat(value) / 100) * parentWidth;
 		}
@@ -211,22 +225,11 @@ function getPixelWidth(object, value){
 		return parseInt(value);
 	}
 	
-	// For EM Values
-	var style = object.style.left;
-	var runtimeStyle = object.runtimeStyle.left;
-	object.runtimeStyle.left = object.currentStyle.left;
-	object.style.left = value || 0;
-	value = parseInt(object.style.pixelLeft);
-	object.style.left = style;
-	object.runtimeStyle.left = runtimeStyle;
-	
-	return value;
+	// Otherwise
+	return getPixelValue(value);
 }
 
 function getPixelHeight(object, value){
-	// For Pixel Values
-	var PIXEL = /^\d+(px)?$/i;
-	if (PIXEL.test(value)) return parseInt(value);
 	
 	// For Percentage Values
 	var PERCENT = /^[\d\.]+%$/i;
@@ -238,12 +241,9 @@ function getPixelHeight(object, value){
 						if(object.parentElement.currentStyle.height !== "auto"){
 							var parentPaddingTop = getPixelWidth(object.parentElement,object.parentElement.currentStyle.paddingTop);
 							var parentPaddingBottom = getPixelWidth(object.parentElement,object.parentElement.currentStyle.paddingBottom);
-							var parentBorderTop = getPixelWidth(object.parentElement,object.parentElement.currentStyle.borderTopWidth);
-							var parentBorderBottom = getPixelWidth(object.parentElement,object.parentElement.currentStyle.borderBottomWidth);
-							
+							var parentBorderTop = getBorderWidth(object.parentElement,"Top");
+							var parentBorderBottom = getBorderWidth(object.parentElement,"Bottom");
 							var parentHeight = object.parentElement.offsetHeight - parentPaddingTop - parentPaddingBottom - parentBorderTop - parentBorderBottom;
-							//var parentHeight = getPixelHeight(object.parentElement,object.parentElement.currentStyle.height);
-
 							value = (parseFloat(value) / 100) * parentHeight;
 						}
 						else {
@@ -273,16 +273,8 @@ function getPixelHeight(object, value){
 		return value;
 	}
 	
-	// For EM Values
-	var style = object.style.left;
-	var runtimeStyle = object.runtimeStyle.left;
-	object.runtimeStyle.left = object.currentStyle.left;
-	object.style.left = value || 0;
-	value = parseInt(object.style.pixelLeft);
-	object.style.left = style;
-	object.runtimeStyle.left = runtimeStyle;
-	
-	return value;
+	// Otherwise
+	return getPixelValue(value);
 }
 
 
@@ -290,17 +282,17 @@ function getPixelHeight(object, value){
  * getBorderWidth & friends
  * Border width getters
  */
-function getBorderWidth(sSide){
-	if(element.currentStyle["border" + sSide + "Style"] == "none"){
+function getBorderWidth(object,sSide){
+	if(object.currentStyle["border" + sSide + "Style"] == "none"){
 		return 0;
 	}
-	var n = getPixelValue(element.currentStyle["border" + sSide + "Width"]);
+	var n = getPixelValue(object.currentStyle["border" + sSide + "Width"]);
 	return n || 0;
 }
-function getBorderLeftWidth() { return getBorderWidth("Left"); }
-function getBorderRightWidth() { return getBorderWidth("Right"); }
-function getBorderTopWidth() { return getBorderWidth("Top"); }
-function getBorderBottomWidth() { return getBorderWidth("Bottom"); }
+function getBorderLeftWidth() { return getBorderWidth(element,"Left"); }
+function getBorderRightWidth() { return getBorderWidth(element,"Right"); }
+function getBorderTopWidth() { return getBorderWidth(element,"Top"); }
+function getBorderBottomWidth() { return getBorderWidth(element,"Bottom"); }
 
 
 /*
