@@ -469,7 +469,7 @@ function updateBorderBoxHeight() {
 	}
 
 	csh = element.currentStyle.minHeight;
-	if(csh != "none"){
+	if(csh != "none" && csh != "100%"){
 		csh = getPixelHeight(element,csh);
 		if(csh !== "none"){
 			if(getBoxSizing() == "border-box"){
@@ -482,7 +482,7 @@ function updateBorderBoxHeight() {
 	}
 
 	csh = element.currentStyle.maxHeight;
-	if(csh != "none"){
+	if(csh != "none" && csh != "100%"){
 		csh = getPixelHeight(element,csh);
 		if(csh !== "none"){
 			if(getBoxSizing() == "border-box"){
